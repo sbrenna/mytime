@@ -13,6 +13,26 @@
     "resources": {
         "media": [
             {
+                "file": "images/no_bluetooth_i.png",
+                "name": "IMAGE_NO_BLUETOOTH_I",
+                "type": "png"
+            },
+            {
+                "file": "images/bluetooth_i.png",
+                "name": "IMAGE_BLUETOOTH_I",
+                "type": "png"
+            },
+            {
+                "file": "images/no_bluetooth.png",
+                "name": "IMAGE_NO_BLUETOOTH",
+                "type": "png"
+            },
+            {
+                "file": "images/bluetooth.png",
+                "name": "IMAGE_BLUETOOTH",
+                "type": "png"
+            },
+            {
                 "file": "images/Device.png",
                 "name": "SCREENSHOT",
                 "type": "png"

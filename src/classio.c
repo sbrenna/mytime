@@ -10,7 +10,43 @@ static TextLayer *s_day_layer;
 static TextLayer *s_connection_layer, *s_ampm_layer, *s_weather_layer, *s_temp_layer, *s_forecast_layer;
 static GFont s_time_font;
 static Layer *batt_layer;
+static GBitmap        *bluetooth_image;
+static BitmapLayer *s_bt_layer;
 
+
+
+// Previous bluetooth connection status
+static bool prev_bt_status = false;
+
+/*static void handle_bluetooth(bool connected) {
+  text_layer_set_text(s_bt_layer, connected ? "connected" : "disconnected");
+}*/
+/*
+  Handle bluetooth events
+*/
+void handle_bluetooth( bool connected ) {
+  
+  if ( bluetooth_image != NULL ) {
+    gbitmap_destroy( bluetooth_image );
+  }
+  time_t temp = time(NULL);
+  struct tm *tick_time = localtime(&temp);
+
+  // connected ? "connected" : "disconnected"
+  
+  int hour = tick_time->tm_hour;
+	
+  if ( connected ) {
+    bluetooth_image = gbitmap_create_with_resource( (hour >= 18) ? RESOURCE_ID_IMAGE_BLUETOOTH : RESOURCE_ID_IMAGE_BLUETOOTH_I);
+  } else {
+    bluetooth_image = gbitmap_create_with_resource( (hour >= 18) ? RESOURCE_ID_IMAGE_NO_BLUETOOTH : RESOURCE_ID_IMAGE_NO_BLUETOOTH_I);
+ 
+  }
+
+  prev_bt_status = connected;
+
+  bitmap_layer_set_bitmap( s_bt_layer, bluetooth_image );
+}
 
 static void update_time() {
   APP_LOG(APP_LOG_LEVEL_INFO, "Update time registered!");
@@ -29,7 +65,7 @@ static void update_time() {
 	  text_layer_set_text_color(s_connection_layer, GColorWhite);
 		text_layer_set_text_color(s_temp_layer, GColorWhite);
 		text_layer_set_text_color(s_weather_layer, GColorWhite);
-//    text_layer_set_text_color(s_digit_h, GColorWhite);
+//    text_layer_set_text_color(s_bt_layer, GColorWhite);
     text_layer_set_text_color(s_forecast_layer, GColorWhite);
   } else if(hour >= 18) {
     text_layer_set_text(s_ampm_layer," ");
@@ -41,7 +77,7 @@ static void update_time() {
 	  text_layer_set_text_color(s_connection_layer, GColorWhite);
 		text_layer_set_text_color(s_temp_layer, GColorWhite);
 		text_layer_set_text_color(s_weather_layer, GColorWhite);
-//    text_layer_set_text_color(s_digit_h, GColorWhite);
+//    text_layer_set_text_color(s_bt_layer, GColorWhite);
     text_layer_set_text_color(s_forecast_layer, GColorWhite);
   } else if(hour >= 15) {
     text_layer_set_text(s_ampm_layer,"late");
@@ -53,7 +89,7 @@ static void update_time() {
 	  text_layer_set_text_color(s_connection_layer, GColorBlack);
 		text_layer_set_text_color(s_temp_layer, GColorBlack);
 		text_layer_set_text_color(s_weather_layer, GColorBlack);
-//    text_layer_set_text_color(s_digit_h, GColorBlack);
+//    text_layer_set_text_color(s_bt_layer, GColorBlack);
     text_layer_set_text_color(s_forecast_layer, GColorBlack);
   } else if(hour >= 12) {
     text_layer_set_text(s_ampm_layer," ");
@@ -65,7 +101,7 @@ static void update_time() {
 	  text_layer_set_text_color(s_connection_layer, GColorBlack);
 		text_layer_set_text_color(s_temp_layer, GColorBlack);
 		text_layer_set_text_color(s_weather_layer, GColorBlack);
-//    text_layer_set_text_color(s_digit_h, GColorBlack);
+//    text_layer_set_text_color(s_bt_layer, GColorBlack);
     text_layer_set_text_color(s_forecast_layer, GColorBlack);
   } else if(hour >= 9) {
     text_layer_set_text(s_ampm_layer,"late");
@@ -77,7 +113,7 @@ static void update_time() {
 	  text_layer_set_text_color(s_connection_layer, GColorBlack);
 		text_layer_set_text_color(s_temp_layer, GColorBlack);
 		text_layer_set_text_color(s_weather_layer, GColorBlack);
-//    text_layer_set_text_color(s_digit_h, GColorBlack);
+//    text_layer_set_text_color(s_bt_layer, GColorBlack);
     text_layer_set_text_color(s_forecast_layer, GColorBlack);
   } else if(hour >= 6) {
     text_layer_set_text(s_ampm_layer," ");
@@ -89,7 +125,7 @@ static void update_time() {
 	  text_layer_set_text_color(s_connection_layer, GColorBlack);
 		text_layer_set_text_color(s_temp_layer, GColorBlack);
 		text_layer_set_text_color(s_weather_layer, GColorBlack);
-//    text_layer_set_text_color(s_digit_h, GColorBlack);
+//    text_layer_set_text_color(s_bt_layer, GColorBlack);
     text_layer_set_text_color(s_forecast_layer, GColorBlack);
   } else if(hour >= 3) {
     text_layer_set_text(s_ampm_layer,"early");
@@ -101,7 +137,7 @@ static void update_time() {
 	  text_layer_set_text_color(s_connection_layer, GColorWhite);
 		text_layer_set_text_color(s_temp_layer, GColorWhite);
 		text_layer_set_text_color(s_weather_layer, GColorWhite);
-//    text_layer_set_text_color(s_digit_h, GColorWhite);
+//    text_layer_set_text_color(s_bt_layer, GColorWhite);
     text_layer_set_text_color(s_forecast_layer, GColorWhite);
   } else if(hour >= 0) {
     text_layer_set_text(s_ampm_layer," ");
@@ -113,7 +149,7 @@ static void update_time() {
 	  text_layer_set_text_color(s_connection_layer, GColorWhite);
 		text_layer_set_text_color(s_temp_layer, GColorWhite);
 		text_layer_set_text_color(s_weather_layer, GColorWhite);
-//    text_layer_set_text_color(s_digit_h, GColorWhite);
+//    text_layer_set_text_color(s_bt_layer, GColorWhite);
     text_layer_set_text_color(s_forecast_layer, GColorWhite);
   } else {
     text_layer_set_text(s_ampm_layer,"error");
@@ -125,7 +161,7 @@ static void update_time() {
 	  text_layer_set_text_color(s_connection_layer, GColorBlack);
 		text_layer_set_text_color(s_temp_layer, GColorBlack);
 		text_layer_set_text_color(s_weather_layer, GColorBlack);
-//    text_layer_set_text_color(s_digit_h, GColorBlack);
+//    text_layer_set_text_color(s_bt_layer, GColorBlack);
     text_layer_set_text_color(s_forecast_layer, GColorBlack);
   }
 
@@ -296,7 +332,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   while(t != NULL) {
 		// Which key was received?
     switch(t->key) {
-		case KEY_TEMPERATURE: // Temperature in fahrenheit
+		case KEY_TEMPERATURE: 
     
       if ((int)t->value->int32 > 20 && (int)t->value->int32 < 27) {
         snprintf(temperature_buffer, sizeof(temperature_buffer), "It's pretty warm");
@@ -360,6 +396,8 @@ static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_CYNTHE_32));
+  bluetooth_connection_service_subscribe(handle_bluetooth);
+
   
   batt_layer = layer_create(GRect(-5, 0, 144, 168));
 	layer_add_child(window_get_root_layer(window), batt_layer);
@@ -377,12 +415,21 @@ static void main_window_load(Window *window) {
 	text_layer_set_text_alignment(s_ampm_layer, GTextAlignmentRight);
 	layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_ampm_layer));
   
-  s_connection_layer = text_layer_create(GRect(0, 115, bounds.size.w, 34));
+  s_connection_layer = text_layer_create(GRect(0, 116, bounds.size.w, 34));
   text_layer_set_text_color(s_connection_layer, GColorWhite);
   text_layer_set_background_color(s_connection_layer, GColorClear);
   text_layer_set_font(s_connection_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_CYNTHE_22)));
   text_layer_set_text_alignment(s_connection_layer, GTextAlignmentRight);
-
+  
+  //s_bt_layer = text_layer_create(GRect(0, 85, bounds.size.w, 34));
+  GRect BT_RECT        = GRect( 124,  93,  17,  20 );
+  s_bt_layer = bitmap_layer_create(BT_RECT);
+//  text_layer_set_text_color(s_bt_layer, GColorWhite);
+//  text_layer_set_background_color(s_bt_layer, GColorClear);
+//  text_layer_set_font(s_bt_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_CYNTHE_22)));
+//  text_layer_set_text_alignment(s_bt_layer, GTextAlignmentRight);
+  handle_bluetooth(bluetooth_connection_service_peek());
+  
   s_day_layer = text_layer_create(GRect(0, 132, bounds.size.w, 34));
   text_layer_set_text_color(s_day_layer, GColorWhite);
   text_layer_set_background_color(s_day_layer, GColorClear);
@@ -423,6 +470,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_connection_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_day_layer));
+  layer_add_child(window_layer, bitmap_layer_get_layer(s_bt_layer));
   update_time();
 }
 
@@ -436,6 +484,7 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_forecast_layer);
   text_layer_destroy(s_temp_layer);
   text_layer_destroy(s_weather_layer);
+  bitmap_layer_destroy(s_bt_layer);
 }
 
 static void init() {
