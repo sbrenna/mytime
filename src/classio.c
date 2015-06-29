@@ -39,7 +39,7 @@ void handle_bluetooth( bool connected ) {
     bluetooth_image = gbitmap_create_with_resource( (hour >= 18 && hour <= 3) ? RESOURCE_ID_IMAGE_BLUETOOTH : RESOURCE_ID_IMAGE_BLUETOOTH_I);
   } else {
     bluetooth_image = gbitmap_create_with_resource( (hour >= 18 && hour <= 3) ? RESOURCE_ID_IMAGE_NO_BLUETOOTH : RESOURCE_ID_IMAGE_NO_BLUETOOTH_I);
- 
+ vibes_short_pulse();
   }
 
   prev_bt_status = connected;
@@ -277,6 +277,12 @@ static void handle_second_tick(struct tm* tick_time, TimeUnits units_changed) {
   
 
 }
+
+static void tick_handler(struct tm *tick_time, TimeUnits units_changed) 
+{
+  update_time();
+}
+
 static void tap_handler(AccelAxisType axis, int32_t direction) {
 	APP_LOG(APP_LOG_LEVEL_INFO, "Tap/flick registered!");
 	
@@ -483,7 +489,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_connection_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_day_layer));
   layer_add_child(window_layer, bitmap_layer_get_layer(s_bt_layer));
-  update_time();
+  //update_time();
 }
 
 static void main_window_unload(Window *window) {
@@ -515,6 +521,9 @@ static void init() {
 	app_message_register_inbox_dropped(inbox_dropped_callback);
 	app_message_register_outbox_failed(outbox_failed_callback);
 	app_message_register_outbox_sent(outbox_sent_callback);
+  update_time();
+  // Register with TickTimerService
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 }
 
 static void deinit() {
