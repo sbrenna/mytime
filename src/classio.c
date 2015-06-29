@@ -32,14 +32,13 @@ void handle_bluetooth( bool connected ) {
   time_t temp = time(NULL);
   struct tm *tick_time = localtime(&temp);
 
-  // connected ? "connected" : "disconnected"
   
   int hour = tick_time->tm_hour;
 	
   if ( connected ) {
-    bluetooth_image = gbitmap_create_with_resource( (hour >= 18) ? RESOURCE_ID_IMAGE_BLUETOOTH : RESOURCE_ID_IMAGE_BLUETOOTH_I);
+    bluetooth_image = gbitmap_create_with_resource( (hour >= 18 && hour <= 3) ? RESOURCE_ID_IMAGE_BLUETOOTH : RESOURCE_ID_IMAGE_BLUETOOTH_I);
   } else {
-    bluetooth_image = gbitmap_create_with_resource( (hour >= 18) ? RESOURCE_ID_IMAGE_NO_BLUETOOTH : RESOURCE_ID_IMAGE_NO_BLUETOOTH_I);
+    bluetooth_image = gbitmap_create_with_resource( (hour >= 18 && hour <= 3) ? RESOURCE_ID_IMAGE_NO_BLUETOOTH : RESOURCE_ID_IMAGE_NO_BLUETOOTH_I);
  
   }
 
@@ -269,10 +268,23 @@ void animate_layer(Layer *layer, GRect *start, GRect *finish, int duration, int 
     animation_schedule((Animation*) anim);
 }
 
+static void handle_second_tick(struct tm* tick_time, TimeUnits units_changed) {
+  // Needs to be static because it's used by the system later.
+  static char s_time_text[] = "00:00";
+
+  strftime(s_time_text, sizeof(s_time_text), "%T", tick_time);
+  text_layer_set_text(s_time_layer, s_time_text);
+  
+
+}
 static void tap_handler(AccelAxisType axis, int32_t direction) {
 	APP_LOG(APP_LOG_LEVEL_INFO, "Tap/flick registered!");
 	
-  
+ time_t now = time(NULL);
+ struct tm *current_time = localtime(&now);
+ handle_second_tick(current_time, MINUTE_UNIT);
+
+  //tick_timer_service_subscribe(MINUTE_UNIT, handle_second_tick);
 	// Battery bar moves in from the left
 	GRect startbatt = GRect(-5,0,144,168);
 	GRect finishbatt = GRect(0,0,144,168);
@@ -289,7 +301,15 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
 	GRect start3 = GRect(0,0,141,168);
 	GRect finish3 = GRect(288,0,141,168);
 	animate_layer(text_layer_get_layer(s_temp_layer), &start3, &finish3, 1000, 7000);
-	
+	// Current time moves in from the right
+  GRect start8 = GRect(288, 60, 141, 34);
+  GRect finish8 = GRect(0, 60, 141, 34);
+  animate_layer(text_layer_get_layer(s_time_layer), &start8, &finish8,1000,0);
+  
+  GRect start9 = GRect(0, 60, 141, 34);
+  GRect finish9 = GRect(288, 60, 141, 34);
+  animate_layer(text_layer_get_layer(s_time_layer), &start9, &finish9,1000,7000); 
+  
 	// Current weather moves in from right
 	GRect start2 = GRect(288,15,141,168);
 	GRect finish2 = GRect(0,15,141,168);
@@ -310,15 +330,7 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
 }
 
 
-static void handle_second_tick(struct tm* tick_time, TimeUnits units_changed) {
-  // Needs to be static because it's used by the system later.
-  static char s_time_text[] = "00:00";
 
-  strftime(s_time_text, sizeof(s_time_text), "%T", tick_time);
-  text_layer_set_text(s_time_layer, s_time_text);
-  
-
-}
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   // Store incoming information
 	static char temperature_buffer[25];
@@ -461,11 +473,11 @@ static void main_window_load(Window *window) {
 
   // Ensures time is displayed immediately (will break if NULL tick event accessed).
   // (This is why it's a good idea to have a separate routine to do the update itself.)
-  time_t now = time(NULL);
-  struct tm *current_time = localtime(&now);
-  handle_second_tick(current_time, MINUTE_UNIT);
+  //time_t now = time(NULL);
+  //struct tm *current_time = localtime(&now);
+  //handle_second_tick(current_time, MINUTE_UNIT);
 
-  tick_timer_service_subscribe(MINUTE_UNIT, handle_second_tick);
+  //tick_timer_service_subscribe(MINUTE_UNIT, handle_second_tick);
 
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_connection_layer));
